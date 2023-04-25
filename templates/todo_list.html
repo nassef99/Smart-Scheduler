@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>Hello, world!</title>
+<style>
+body {
+    padding-bottom: 200px;
+}
+
+.footer {
+   position: fixed;
+   left: 0;
+   bottom: 0;
+   width: 100%;
+   background-color: #D3D3D3;
+   color: black;
+   text-align: left;
+}
+
+.p_warning {
+  border: solid thick #E67E00;
+}
+
+.column {
+  float: left;
+  width: 50%;
+  padding-left: 20px;
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.info {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.info .infotext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  left: 50%;
+  margin-left: -60px;
+}
+
+.info:hover .infotext {
+  visibility: visible;
+}
+</style>
+</head>
+<body>
+<h1>Welcome to Smart Scheduler!</h1>
+<table class="table">
+    <thead>
+    <tr>
+        <th style="width: 20%" scope="col">Timestamp</th>
+        <th style="width: 40%" scope="col">Task Description</th>
+        <th style="width: 15%" scope="col">Start Time</th>
+        <th style="width: 15%" scope="col">End Time</th>
+        <th style="width: 10%" scope="col">Complete</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for event in events %}
+    <tr {% if event.has_high_pollen %}class="p_warning"{% endif %} >
+		<th scope="row">{{ event.created_timestamp }}</th>
+        <td>
+		  {{ event.event_name }}
+		  {% if event.has_high_pollen %}
+		    <b style="color: #E67E00"><br>Pollen Warning</b>
+	      {% endif %}
+		  <br>
+		  <div class="info">More info
+		    <span class="infotext">{{ event.event_street_address }}
+			<br>{{ event.event_city }}
+			<br>{{ event.event_zipcode }}
+			{% if event.is_outdoors %}
+			  <br>Outdoors
+			{% else %}
+			  <br>Indoors
+			{% endif %}
+			</span>
+		  </div>
+		</td>
+        <td>{{ event.start_time }}</td>
+        <td>{{ event.end_time }}</td>
+        <td>
+        {% if event.is_complete %}
+            Completed
+        {% else %}
+			<form action="completed/" method="post">
+				{% csrf_token %}
+				<!-- May need to pass a private key for event into value -->
+				<input type="hidden" id="markcomplete" name="markcomplete" value="{{ event.event_name }}"></input>
+				<button type="submit" class="btn btn-primary">Mark as Complete</button>
+			</form>
+        {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+<!-- Stick to bottom of screen -->
+<div class="footer">
+  <legend>New Task</legend>
+  <div class="row">
+    <form action="new_task/" method="post">
+      <fieldset>
+	    {% csrf_token %}
+	    <div class="column">
+		  <label for="event_name">Name of Event:</label>
+          <input type="text" id="event_name" name="event_name"><br>
+	      <label for="start_time">Start Date and Time:</label>
+          <input type="datetime-local" id="start_time" name="start_time"><br>
+	      <label for="end_time">End Date and Time:</label>
+          <input type="datetime-local" id="end_time" name="end_time"><br>
+		</div>
+		<div class="column">
+          <label for="address">Street Address:</label>
+          <input type="text" id="address" name="address"><br>
+	      <label for="city">City:</label>
+          <input type="text" id="city" name="city"><br>
+	      <label for="zip_code">Zip Code:</label>
+          <input type="number" id="zip_code" name="zip_code"><br>
+		  <label for="outside">Outside:</label>
+          <input type="radio" id="outside" name="in_out" value="True">
+	      <label for="inside">Inside:</label>
+          <input type="radio" id="inside" name="in_out" value="False"><br>
+          <input type="submit" value="Submit">
+		</div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+</body>
+</html>
